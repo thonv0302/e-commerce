@@ -3,7 +3,6 @@
 const mongoose = require('mongoose');
 
 const connectString = `mongodb+srv://thonv0302:chemgio123@trainning.55stg.mongodb.net/shop`;
-console.log('vao day');
 mongoose
   .connect(connectString)
   .then((_) => console.log(`Connected Mongodb Success`))
