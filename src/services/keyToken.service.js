@@ -10,13 +10,6 @@ class KeyTokenService {
     refreshToken,
   }) => {
     try {
-      // const tokens = await keytokenModel.create({
-      //   user: userId,
-      //   publicKey,
-      //   privateKey,
-      // });
-      // return tokens ? tokens.publicKey : null;
-      // level
       const filter = { user: userId };
       const update = {
         publicKey,

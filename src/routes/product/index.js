@@ -4,7 +4,7 @@ const express = require('express');
 const productController = require('../../controllers/product.controller');
 const router = express.Router();
 const { asyncHandler } = require('../../auth/checkAuth');
-const { authentication2 } = require('../../auth/authUtils');
+const { authenticationV2 } = require('../../auth/authUtils');
 
 router.get(
   '/search/:keySearch',
@@ -12,7 +12,7 @@ router.get(
 );
 
 // authentication //
-router.use(authentication2);
+router.use(authenticationV2);
 //
 router.post('', asyncHandler(productController.createProduct));
 router.post(

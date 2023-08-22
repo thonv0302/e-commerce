@@ -6,7 +6,7 @@ const connectString = `mongodb+srv://thonv0302:chemgio123@trainning.55stg.mongod
 mongoose
   .connect(connectString)
   .then((_) => console.log(`Connected Mongodb Success`))
-  .catch((err) => console.log(`Error Connect!`));
+  .catch((err) => console.log(`Error Connect!`, err));
 
 if (1 === 0) {
   mongoose.set('debug', true);

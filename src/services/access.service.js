@@ -152,7 +152,7 @@ class AccessService {
 
     // generate token
     const tokens = await createTokenPair(
-      { userId: foundShop._id, email },
+      { userId: foundShop._id, email, name: foundShop.name },
       publicKey,
       privateKey
     );
@@ -166,8 +166,8 @@ class AccessService {
 
     return {
       shop: getInfoData({
-        fields: ['_id', 'name', 'email'],
-        object: foundShop,
+        fields: ['userId', 'name', 'email'],
+        object: { ...foundShop, userId: foundShop._id },
       }),
       tokens,
     };
@@ -215,14 +215,11 @@ class AccessService {
       );
 
       return {
-        code: 201,
-        metadata: {
-          shop: getInfoData({
-            fields: ['_id', 'name', 'email'],
-            object: newShop,
-          }),
-          tokens,
-        },
+        shop: getInfoData({
+          fields: ['userId', 'name', 'email'],
+          object: { ...newShop, userId: newShop._id },
+        }),
+        tokens,
       };
     }
     return {
