@@ -119,7 +119,7 @@ class AccessService {
     });
 
     return {
-      user,
+      shop: user,
       tokens,
     };
   };
