@@ -85,6 +85,9 @@ const authenticationV2 = asyncHandler(async (req, res, next) => {
     req.user = decodeUser;
     next();
   } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      throw new AuthFailureError('Jwt Expired');
+    }
     throw error;
   }
 });
@@ -95,7 +98,6 @@ const verifyJWT = async (token, keyScret) => {
 
 module.exports = {
   createTokenPair,
-  // authentication,
   authenticationV2,
   verifyJWT,
 };

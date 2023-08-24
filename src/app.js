@@ -34,6 +34,7 @@ app.use('', require('./routes'));
 // handling error
 app.use((req, res, next) => {
   const error = new Error('Not found');
+  console.log('vao day');
   error.status = 404;
   next(error);
 });
