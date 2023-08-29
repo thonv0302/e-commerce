@@ -94,7 +94,9 @@ class AccessService {
     }
 
     if (keyStore.refreshToken !== refreshToken) {
-      throw new AuthFailureError('Shop not registered 1!');
+      throw new AuthFailureError(
+        'Your sesion is experied, please login again.'
+      );
     }
 
     const foundShop = await findByEmail({ email });

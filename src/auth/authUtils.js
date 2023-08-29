@@ -2,7 +2,11 @@
 
 const JWT = require('jsonwebtoken');
 const asyncHandler = require('../helpers/asyncHandler');
-const { AuthFailureError, NotFoundError } = require('../core/error.response');
+const {
+  AuthFailureError,
+  NotFoundError,
+  ForbiddenError,
+} = require('../core/error.response');
 const { findByUserId } = require('../services/keyToken.service');
 
 const HEADER = {
@@ -14,9 +18,8 @@ const HEADER = {
 
 const createTokenPair = async (payload, publicKey, privateKey) => {
   try {
-    //accessToken
     const accessToken = await JWT.sign(payload, publicKey, {
-      expiresIn: 60,
+      expiresIn: 60 * 60,
     });
 
     const refreshToken = await JWT.sign(payload, privateKey, {
@@ -87,6 +90,8 @@ const authenticationV2 = asyncHandler(async (req, res, next) => {
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
       throw new AuthFailureError('Jwt Expired');
+    } else if (error.name === 'JsonWebTokenError') {
+      throw new ForbiddenError('JWT Invalid');
     }
     throw error;
   }

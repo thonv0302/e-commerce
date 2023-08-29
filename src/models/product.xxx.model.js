@@ -82,7 +82,6 @@ productSchema.pre('save', function (next) {
   this.product_slug = slugify(this.product_name, {
     lower: true,
   });
-  console.log('this.product_slug: ', this.product_slug);
   next();
 });
 

@@ -52,7 +52,7 @@ class AccessController {
 
   unPublishProductByShop = async (req, res, next) => {
     new SuccessResponse({
-      message: 'Publish product success!',
+      message: 'Unpublish product success!',
       metadata: await ProductServiceV2.unPublishProductByShop({
         product_id: req.params.id,
         product_shop: req.user.userId,
@@ -64,6 +64,22 @@ class AccessController {
     new SuccessResponse({
       message: 'Get list search product success!',
       metadata: await ProductServiceV2.getListSearchProduct(req.params),
+    }).send(res);
+  };
+
+  findAllProducts = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Get list product success!',
+      metadata: await ProductServiceV2.findAllProducts(req.query),
+    }).send(res);
+  };
+
+  findProduct = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Get list product success!',
+      metadata: await ProductServiceV2.findProduct({
+        product_id: req.params.product_id,
+      }),
     }).send(res);
   };
 }
