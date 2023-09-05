@@ -11,6 +11,7 @@ const { insertInventory } = require('../models/repositories/inventory.repo');
 const {
   findAllDraftsForShop,
   publishProductByShop,
+  findAllProductForShop,
   findAllPublishsForShop,
   searchProductByUser,
   unPublishProductByShop,
@@ -76,6 +77,17 @@ class ProductFactory {
     });
   }
 
+  static async findAllProductShop({ product_shop, limit = 50, skip = 0 }) {
+    const query = {
+      product_shop,
+    };
+    return await findAllProductForShop({
+      query,
+      limit,
+      skip,
+    });
+  }
+
   static async getListSearchProduct({ keySearch }) {
     return await searchProductByUser({ keySearch });
   }
@@ -91,7 +103,12 @@ class ProductFactory {
       sort,
       filter,
       page,
-      select: ['product_name', 'product_price', 'product_thumb'],
+      select: [
+        'product_name',
+        'product_price',
+        'product_thumb',
+        'product_shop',
+      ],
     });
   }
 
@@ -127,7 +144,6 @@ class Product {
     const newProduct = await product.create({ ...this, _id: product_id });
     if (newProduct) {
       // add product_stock in inventory collection
-      console.log('this: ', this);
       await insertInventory({
         productId: newProduct._id,
         shopId: this.product_shop,

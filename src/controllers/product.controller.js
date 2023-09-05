@@ -46,6 +46,8 @@ class AccessController {
   };
 
   getAllPublishsForShop = async (req, res, next) => {
+    console.log('vao day 1');
+
     new SuccessResponse({
       message: 'Get list publish success!',
       metadata: await ProductServiceV2.findAllPublishsForShop({
@@ -94,6 +96,15 @@ class AccessController {
       message: 'Get list product success!',
       metadata: await ProductServiceV2.findProduct({
         product_id: req.params.product_id,
+      }),
+    }).send(res);
+  };
+
+  getAllProductByShop = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Get list product shop success!',
+      metadata: await ProductServiceV2.findAllProductShop({
+        product_shop: req.user.userId,
       }),
     }).send(res);
   };

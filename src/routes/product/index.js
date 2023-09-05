@@ -35,4 +35,6 @@ router.get(
   asyncHandler(productController.getAllPublishsForShop)
 );
 
+router.get('/shop/all', asyncHandler(productController.getAllProductByShop));
+
 module.exports = router;
