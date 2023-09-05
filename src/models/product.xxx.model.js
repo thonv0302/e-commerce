@@ -63,7 +63,7 @@ var productSchema = new Schema(
       type: Boolean,
       default: false,
       index: true,
-      select: false,
+      // select: false,
     },
   },
   {
