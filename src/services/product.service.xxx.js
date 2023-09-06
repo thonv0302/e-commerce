@@ -77,14 +77,14 @@ class ProductFactory {
     });
   }
 
-  static async findAllProductShop({ product_shop, limit = 50, skip = 0 }) {
+  static async findAllProductShop({ product_shop, pageSize = 2, pageNumber = 1 }) {
     const query = {
       product_shop,
     };
     return await findAllProductForShop({
       query,
-      limit,
-      skip,
+      pageSize,
+      pageNumber,
     });
   }
 

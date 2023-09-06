@@ -14,16 +14,16 @@ const {
 
 const { Types } = require('mongoose');
 
-const findAllDraftsForShop = async ({ query, limit, skip }) => {
-  return await queryProduct({ query, limit, skip });
+const findAllDraftsForShop = async ({ query, pageSize, pageNumber }) => {
+  return await queryProduct({ query, pageSize, pageNumber });
 };
 
-const findAllPublishsForShop = async ({ query, limit, skip }) => {
-  return await queryProduct({ query, limit, skip });
+const findAllPublishsForShop = async ({ query, pageSize, pageNumber }) => {
+  return await queryProduct({ query, pageSize, pageNumber });
 };
 
-const findAllProductForShop = async ({ query, limit, skip }) => {
-  return await queryProduct({ query, limit, skip });
+const findAllProductForShop = async ({ query, pageSize, pageNumber }) => {
+  return await queryProduct({ query, pageSize, pageNumber });
 };
 
 const publishProductByShop = async ({ product_shop, product_id }) => {
@@ -113,14 +113,20 @@ const updateProductById = async ({
   });
 };
 
-const queryProduct = async ({ query, limit, skip }) => {
-  return await product
+const queryProduct = async ({ query, pageSize, pageNumber }) => {
+  const skip = (pageNumber - 1) * pageSize; // Calculate the number of documents to skip
+  const products = await product
     .find(query)
     .populate('product_shop', 'name email -_id')
-    .sort({ updateAt: -1 })
+    .sort({ updatedAt: -1 })
     .skip(skip)
+    .limit(pageSize) // Add this to limit the number of results per page
     .lean()
     .exec();
+
+  const totalRecords = await product.countDocuments(query);
+
+  return { products, totalRecords };
 };
 
 const getProductById = async (productId) => {

@@ -105,6 +105,7 @@ class AccessController {
       message: 'Get list product shop success!',
       metadata: await ProductServiceV2.findAllProductShop({
         product_shop: req.user.userId,
+        ...req.query
       }),
     }).send(res);
   };
