@@ -14,15 +14,18 @@ const {
 
 const { Types } = require('mongoose');
 
-const findAllDraftsForShop = async ({ query, limit, skip }) => {
-  return await queryProduct({ query, limit, skip });
+const findAllDraftsForShop = async ({ query, sort, limit, skip }) => {
+  console.log({ query, sort, limit, skip });
+  return await queryProduct({ query, sort, limit, skip });
 };
 
-const findAllPublishsForShop = async ({ query, limit, skip }) => {
-  return await queryProduct({ query, limit, skip });
+const findAllPublishsForShop = async ({ query, sort, limit, skip }) => {
+  console.log({ query, sort, limit, skip });
+  return await queryProduct({ query, sort, limit, skip });
 };
 
 const findAllProductForShop = async ({ query, sort, limit, skip }) => {
+  console.log({ query, sort, limit, skip });
   return await queryProduct({ query, sort, limit, skip });
 };
 
@@ -114,14 +117,22 @@ const updateProductById = async ({
 };
 
 const queryProduct = async ({ query, sort, limit, skip }) => {
-  return await product
-    .find(query)
-    .populate('product_shop', 'name email -_id')
-    .sort(sort)
-    .limit(limit)
-    .skip(skip)
-    .lean()
-    .exec();
+  const [products, total] = await Promise.all([
+    product
+      .find(query)
+      .populate('product_shop', 'name email -_id')
+      .sort(sort)
+      .limit(limit)
+      .skip((skip - 1) * limit)
+      .lean()
+      .exec(),
+    product.countDocuments(query),
+  ]);
+
+  return {
+    products,
+    total,
+  };
 };
 
 const getProductById = async (productId) => {

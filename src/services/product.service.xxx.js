@@ -23,36 +23,10 @@ const {
 const {
   removeUndefinedObject,
   updateNestedObjectParser,
+  removeFalsyValues,
 } = require('../utils/index');
 
 // define Factory class to create product
-
-function removeFalsyValues(obj) {
-  if (typeof obj !== 'object' || obj === null) {
-    return obj;
-  }
-
-  if (Array.isArray(obj)) {
-    return obj
-      .map(removeFalsyValues)
-      .filter(value => value !== null && value !== undefined && (typeof value !== 'object' || Object.keys(value).length > 0));
-  }
-
-  return Object.entries(obj)
-    .reduce((acc, [key, value]) => {
-      const cleanedValue = removeFalsyValues(value);
-      if (
-        cleanedValue !== null &&
-        cleanedValue !== undefined &&
-        (typeof cleanedValue !== 'object' || Object.keys(cleanedValue).length > 0) &&
-        !Number.isNaN(cleanedValue)
-      ) {
-        acc[key] = cleanedValue;
-      }
-      return acc;
-    }, {});
-}
-
 class ProductFactory {
   static productRegistry = {};
 
@@ -86,43 +60,107 @@ class ProductFactory {
     });
   }
 
-  static async findAllDraftsForShop({ product_shop, limit = 50, skip = 0 }) {
-    const query = { product_shop, isDraft: true };
-    return await findAllDraftsForShop({
-      query,
-      limit,
-      skip,
-    });
-  }
-
-  static async findAllPublishsForShop({ product_shop, limit = 50, skip = 0 }) {
-    const query = { product_shop, isPublished: true };
-    return await findAllPublishsForShop({
-      query,
-      limit,
-      skip,
-    });
-  }
-
-  static async findAllProductShop({ product_shop, limit = 50, skip = 0, sortInventory,
+  static async findAllDraftsForShop({
+    product_shop,
+    limit = 10,
+    skip = 0,
+    sortTitle,
+    sortInventory,
     sortPrice,
     sortDate,
-    search }) {
-    console.log('search: ', search);
+    search,
+  }) {
+    const searchObj = {};
+    if (search) {
+      searchObj[`$regex`] = search;
+      searchObj[`$options`] = 'i';
+    }
     const query = removeFalsyValues({
       product_shop,
-      product_name: {
-        $regex: search,
-      }
-    })
+      isDraft: true,
+      product_name: searchObj,
+    });
+
     const sort = removeFalsyValues({
       product_quantity: +sortInventory,
       product_price: +sortPrice,
       createdAt: +sortDate,
+      product_name: +sortTitle,
+    });
 
-    })
-    console.log('query: ', query);
     console.log('sort: ', sort);
+
+    return await findAllDraftsForShop({
+      query,
+      sort,
+      limit,
+      skip,
+    });
+  }
+
+  static async findAllPublishsForShop({
+    product_shop,
+    limit = 10,
+    skip = 0,
+    sortTitle,
+    sortInventory,
+    sortPrice,
+    sortDate,
+    search,
+  }) {
+    const searchObj = {};
+    if (search) {
+      searchObj[`$regex`] = search;
+      searchObj[`$options`] = 'i';
+    }
+    const query = removeFalsyValues({
+      product_shop,
+      isPublished: true,
+      product_name: searchObj,
+    });
+
+    const sort = removeFalsyValues({
+      product_quantity: +sortInventory,
+      product_price: +sortPrice,
+      createdAt: +sortDate,
+      product_name: +sortTitle,
+    });
+
+    return await findAllPublishsForShop({
+      query,
+      sort,
+      limit,
+      skip,
+    });
+  }
+
+  static async findAllProductShop({
+    product_shop,
+    limit = 10,
+    skip = 0,
+    sortTitle,
+    sortInventory,
+    sortPrice,
+    sortDate,
+    search,
+  }) {
+    const searchObj = {};
+    if (search) {
+      searchObj[`$regex`] = search;
+      searchObj[`$options`] = 'i';
+    }
+
+    const query = removeFalsyValues({
+      product_shop,
+      product_name: searchObj,
+    });
+    const sort = removeFalsyValues({
+      product_quantity: +sortInventory,
+      product_price: +sortPrice,
+      createdAt: +sortDate,
+      product_name: +sortTitle,
+    });
+
     return await findAllProductForShop({
       query,
       sort,
@@ -136,7 +174,7 @@ class ProductFactory {
   }
 
   static async findAllProducts({
-    limit = 50,
+    limit = 10,
     sort = 'ctime',
     page = 1,
     filter = { isPublished: true },

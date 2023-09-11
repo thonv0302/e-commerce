@@ -41,16 +41,21 @@ class AccessController {
       message: 'Get list draft success!',
       metadata: await ProductServiceV2.findAllDraftsForShop({
         product_shop: req.user.userId,
+        skip: +req.query.page || 1,
+        limit: +req.query.size || 2,
+        ...req.query,
       }),
     }).send(res);
   };
 
   getAllPublishsForShop = async (req, res, next) => {
-
     new SuccessResponse({
       message: 'Get list publish success!',
       metadata: await ProductServiceV2.findAllPublishsForShop({
         product_shop: req.user.userId,
+        skip: +req.query.page || 1,
+        limit: +req.query.size || 2,
+        ...req.query,
       }),
     }).send(res);
   };
@@ -104,9 +109,9 @@ class AccessController {
       message: 'Get list product shop success!',
       metadata: await ProductServiceV2.findAllProductShop({
         product_shop: req.user.userId,
-        skip: req.query.page,
-        limit: req.query.size,
-        ...req.query
+        skip: +req.query.page,
+        limit: +req.query.size || 2,
+        ...req.query,
       }),
     }).send(res);
   };
