@@ -46,7 +46,6 @@ class AccessController {
   };
 
   getAllPublishsForShop = async (req, res, next) => {
-    console.log('vao day 1');
 
     new SuccessResponse({
       message: 'Get list publish success!',
@@ -105,6 +104,9 @@ class AccessController {
       message: 'Get list product shop success!',
       metadata: await ProductServiceV2.findAllProductShop({
         product_shop: req.user.userId,
+        skip: req.query.page,
+        limit: req.query.size,
+        ...req.query
       }),
     }).send(res);
   };

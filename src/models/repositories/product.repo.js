@@ -22,8 +22,8 @@ const findAllPublishsForShop = async ({ query, limit, skip }) => {
   return await queryProduct({ query, limit, skip });
 };
 
-const findAllProductForShop = async ({ query, limit, skip }) => {
-  return await queryProduct({ query, limit, skip });
+const findAllProductForShop = async ({ query, sort, limit, skip }) => {
+  return await queryProduct({ query, sort, limit, skip });
 };
 
 const publishProductByShop = async ({ product_shop, product_id }) => {
@@ -113,11 +113,12 @@ const updateProductById = async ({
   });
 };
 
-const queryProduct = async ({ query, limit, skip }) => {
+const queryProduct = async ({ query, sort, limit, skip }) => {
   return await product
     .find(query)
     .populate('product_shop', 'name email -_id')
-    .sort({ updateAt: -1 })
+    .sort(sort)
+    .limit(limit)
     .skip(skip)
     .lean()
     .exec();

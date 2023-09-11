@@ -26,6 +26,33 @@ const {
 } = require('../utils/index');
 
 // define Factory class to create product
+
+function removeFalsyValues(obj) {
+  if (typeof obj !== 'object' || obj === null) {
+    return obj;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj
+      .map(removeFalsyValues)
+      .filter(value => value !== null && value !== undefined && (typeof value !== 'object' || Object.keys(value).length > 0));
+  }
+
+  return Object.entries(obj)
+    .reduce((acc, [key, value]) => {
+      const cleanedValue = removeFalsyValues(value);
+      if (
+        cleanedValue !== null &&
+        cleanedValue !== undefined &&
+        (typeof cleanedValue !== 'object' || Object.keys(cleanedValue).length > 0) &&
+        !Number.isNaN(cleanedValue)
+      ) {
+        acc[key] = cleanedValue;
+      }
+      return acc;
+    }, {});
+}
+
 class ProductFactory {
   static productRegistry = {};
 
@@ -77,12 +104,28 @@ class ProductFactory {
     });
   }
 
-  static async findAllProductShop({ product_shop, limit = 50, skip = 0 }) {
-    const query = {
+  static async findAllProductShop({ product_shop, limit = 50, skip = 0, sortInventory,
+    sortPrice,
+    sortDate,
+    search }) {
+    console.log('search: ', search);
+    const query = removeFalsyValues({
       product_shop,
-    };
+      product_name: {
+        $regex: search,
+      }
+    })
+    const sort = removeFalsyValues({
+      product_quantity: +sortInventory,
+      product_price: +sortPrice,
+      createdAt: +sortDate,
+
+    })
+    console.log('query: ', query);
+    console.log('sort: ', sort);
     return await findAllProductForShop({
       query,
+      sort,
       limit,
       skip,
     });
