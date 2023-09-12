@@ -88,8 +88,6 @@ class ProductFactory {
       product_name: +sortTitle,
     });
 
-    console.log('sort: ', sort);
-
     return await findAllDraftsForShop({
       query,
       sort,

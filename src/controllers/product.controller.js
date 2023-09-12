@@ -42,7 +42,7 @@ class AccessController {
       metadata: await ProductServiceV2.findAllDraftsForShop({
         product_shop: req.user.userId,
         skip: +req.query.page || 1,
-        limit: +req.query.size || 2,
+        limit: +req.query.size || 10,
         ...req.query,
       }),
     }).send(res);
@@ -54,7 +54,7 @@ class AccessController {
       metadata: await ProductServiceV2.findAllPublishsForShop({
         product_shop: req.user.userId,
         skip: +req.query.page || 1,
-        limit: +req.query.size || 2,
+        limit: +req.query.size || 10,
         ...req.query,
       }),
     }).send(res);
@@ -110,7 +110,7 @@ class AccessController {
       metadata: await ProductServiceV2.findAllProductShop({
         product_shop: req.user.userId,
         skip: +req.query.page,
-        limit: +req.query.size || 2,
+        limit: +req.query.size || 10,
         ...req.query,
       }),
     }).send(res);
