@@ -6,8 +6,19 @@ const router = express.Router();
 const { asyncHandler } = require('../../auth/checkAuth');
 const { authenticationV2 } = require('../../auth/authUtils');
 
+const multer = require('multer');
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
 // authentication //
 router.use(authenticationV2);
-router.post('', asyncHandler(imageController.createImage));
+
+router.get('', asyncHandler(imageController.getImages));
+
+router.post(
+  '',
+  upload.single('file'),
+  asyncHandler(imageController.createImage)
+);
 
 module.exports = router;
