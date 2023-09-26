@@ -1,25 +1,24 @@
-const imageModel = require('../image.model')
+const imageModel = require('../image.model');
 const { Types } = require('mongoose');
 
 const queryImage = async ({
   query,
-  limit = 1,
+  limit = 5,
   sort = {
-    _id: -1
+    _id: -1,
   },
   next_cursor = null,
   previous_cursor = null,
 }) => {
   if (next_cursor) {
-    query['_id'] = { $lt: new Types.ObjectId(next_cursor) }
+    query['_id'] = { $lt: new Types.ObjectId(next_cursor) };
   }
 
   if (previous_cursor) {
-    query['_id'] = { $gt: new Types.ObjectId(previous_cursor) }
+    query['_id'] = { $gt: new Types.ObjectId(previous_cursor) };
   }
 
-
-  const data = await imageModel.find(query).sort(sort).limit(limit)
+  const data = await imageModel.find(query).sort(sort).limit(limit);
 
   let lastItemCursor, firstItemCursor;
 
@@ -27,26 +26,26 @@ const queryImage = async ({
     const lastItemId = data[data.length - 1]._id;
     const firstItemId = data[0]._id;
 
-    const queryNextItem = { _id: { $lt: lastItemId } };
-    const queryPrevItem = { _id: { $gt: firstItemId } }
-    const data1 = await Promise.all([imageModel.findOne(queryNextItem), imageModel.findOne(queryPrevItem)]);
+    const queryNextItem = { _id: { $lt: new Types.ObjectId(lastItemId) } };
+    const queryPrevItem = { _id: { $gt: new Types.ObjectId(firstItemId) } };
+    const [result1, result2] = await Promise.all([
+      imageModel.findOne({ ...query, ...queryNextItem }).sort(sort),
+      imageModel.findOne({ ...query, ...queryPrevItem }).sort(sort),
+    ]);
 
-    console.log('data1: ', data1);
-
-    // if (result1) {
-    //   lastItemCursor = lastItemId
-    // }
-    // if (result2) {
-    //   firstItemCursor = firstItemId
-    // }
-
+    if (result1) {
+      lastItemCursor = lastItemId;
+    }
+    if (result2) {
+      firstItemCursor = firstItemId;
+    }
   }
 
   return {
     data,
     lastItemCursor,
-    firstItemCursor
-  }
+    firstItemCursor,
+  };
 };
 
 module.exports = {

@@ -1,8 +1,7 @@
 const imageModel = require('../models/image.model');
 const { uploadFile } = require('../helpers/awsS3');
-const { Types } = require('mongoose');
 const { BadRequestError } = require('../core/error.response');
-const { queryImage } = require('../models/repositories/image.repo')
+const { queryImage } = require('../models/repositories/image.repo');
 
 class ImageService {
   static async createImage(payload) {
@@ -32,78 +31,53 @@ class ImageService {
     return newImage;
   }
 
-  static async getImages({ image_shopId, next_cursor, previous_cursor, belong }) {
-    const objQueryShopImages = {
+  static async getImages({
+    image_shopId,
+    next_cursor,
+    previous_cursor,
+    belong,
+  }) {
+    const objQueryImages = {
       image_shopId,
-      // belong: 'shop'
     };
 
-    const { data: data1,
-      lastItemCursor,
-      firstItemCursor } = await queryImage({
-        query: objQueryShopImages,
+    let result1, result2;
+    if (!belong) {
+      [result1, result2] = await Promise.all([
+        queryImage({
+          query: { ...objQueryImages, belong: 'shop' },
+          next_cursor,
+          previous_cursor,
+        }),
+        queryImage({
+          query: { ...objQueryImages, belong: 'product' },
+          next_cursor,
+          previous_cursor,
+        }),
+      ]);
+    }
+
+    if (belong === 'shop') {
+      result1 = await queryImage({
+        query: { ...objQueryImages, belong: 'shop' },
         next_cursor,
-        previous_cursor
-      })
-
-    console.log({
-      data1,
-      lastItemCursor,
-      firstItemCursor
-    });
-
-    if (next_cursor) {
-      objQueryShopImages._id = { $lt: new Types.ObjectId(next_cursor) };
+        previous_cursor,
+      });
     }
 
-    if (previous_cursor) {
-      objQueryShopImages._id = {
-        $gt: new Types.ObjectId(previous_cursor),
-      };
-    }
-
-    const data = await imageModel
-      .find(objQueryShopImages)
-      .sort({
-        _id: -1,
-      })
-      .limit(2);
-
-    let hasNext, hasPrev, lastItem, firstItem;
-
-    if (data.length) {
-      lastItem = data[data.length - 1]._id;
-      firstItem = data[0]._id;
-
-      const q = { _id: { $lt: lastItem } };
-      const r = await imageModel.findOne(q);
-
-      if (r) {
-        hasNext = true;
-      }
-
-      q._id = {
-        $gt: firstItem,
-      };
-      hasPrev = !!(await imageModel.findOne(q));
+    if (belong === 'product') {
+      result2 = await queryImage({
+        query: { ...objQueryImages, belong: 'product' },
+        next_cursor,
+        previous_cursor,
+      });
     }
 
     const dataStructure = {
-      uploadedImages: {
-        pageInfo: {
-          next_cursor: null,
-          previous_cursor: null,
-        },
-        edges: data,
-      },
+      uploadedImages: { ...result1, belong: 'shop' },
+      productImages: { ...result2, belong: 'product' },
     };
 
-    if (hasNext) {
-      dataStructure.uploadedImages.pageInfo.next_cursor = `${lastItem}`;
-    }
-    if (hasPrev) {
-      dataStructure.uploadedImages.pageInfo.previous_cursor = `${firstItem}`;
-    }
     return dataStructure;
   }
 }
