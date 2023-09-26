@@ -16,9 +16,14 @@ const queryImage = async ({
 
   if (previous_cursor) {
     query['_id'] = { $gt: new Types.ObjectId(previous_cursor) };
+    sort = {
+      _id: 1,
+    };
   }
 
   const data = await imageModel.find(query).sort(sort).limit(limit);
+
+  if (previous_cursor) data.reverse();
 
   let lastItemCursor, firstItemCursor;
 
@@ -28,9 +33,16 @@ const queryImage = async ({
 
     const queryNextItem = { _id: { $lt: new Types.ObjectId(lastItemId) } };
     const queryPrevItem = { _id: { $gt: new Types.ObjectId(firstItemId) } };
+
     const [result1, result2] = await Promise.all([
-      imageModel.findOne({ ...query, ...queryNextItem }).sort(sort),
-      imageModel.findOne({ ...query, ...queryPrevItem }).sort(sort),
+      imageModel
+        .findOne({ ...query, ...queryNextItem })
+        .sort(sort)
+        .limit(limit),
+      imageModel
+        .findOne({ ...query, ...queryPrevItem })
+        .sort(sort)
+        .limit(limit),
     ]);
 
     if (result1) {

@@ -21,6 +21,7 @@ class ImageController {
         image_shopId: req.user.userId,
         next_cursor: req.query.next_cursor,
         previous_cursor: req.query.previous_cursor,
+        belong: req.query.belong,
       }),
     }).send(res);
   };

@@ -57,12 +57,19 @@ class ImageService {
       ]);
     }
 
+    console.log('Vao day 1', belong);
+
     if (belong === 'shop') {
+      console.log('Vao day: ', {
+        next_cursor,
+        previous_cursor,
+      });
       result1 = await queryImage({
         query: { ...objQueryImages, belong: 'shop' },
         next_cursor,
         previous_cursor,
       });
+      // console.log('Vao day');
     }
 
     if (belong === 'product') {
