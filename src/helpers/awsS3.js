@@ -49,9 +49,7 @@ getFileUrl = async ({ keys }) => {
         Key: key,
       });
 
-      return getSignedUrl(s3Client, command, {
-        expiresIn: 3600,
-      });
+      return getSignedUrl(s3Client, command);
     })
   );
 

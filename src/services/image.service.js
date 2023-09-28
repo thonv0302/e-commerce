@@ -1,5 +1,5 @@
 const imageModel = require('../models/image.model');
-const { uploadFile } = require('../helpers/awsS3');
+const { uploadFile, getFileUrl } = require('../helpers/awsS3');
 const { BadRequestError } = require('../core/error.response');
 const { queryImage } = require('../models/repositories/image.repo');
 
@@ -14,6 +14,12 @@ class ImageService {
         body: file.buffer,
         mimetype: file.mimetype,
       });
+
+      console.log('fileName: ', fileName);
+
+      const urls = await getFileUrl({ keys: [fileName] })
+
+      console.log('urls: ', urls);
 
       newImage = await imageModel.create({
         name: file.originalname,
@@ -57,8 +63,6 @@ class ImageService {
       ]);
     }
 
-    console.log('Vao day 1', belong);
-
     if (belong === 'shop') {
       console.log('Vao day: ', {
         next_cursor,
@@ -69,7 +73,6 @@ class ImageService {
         next_cursor,
         previous_cursor,
       });
-      // console.log('Vao day');
     }
 
     if (belong === 'product') {
