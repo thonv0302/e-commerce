@@ -15,16 +15,12 @@ class ImageService {
         mimetype: file.mimetype,
       });
 
-      console.log('fileName: ', fileName);
-
-      const urls = await getFileUrl({ keys: [fileName] })
-
-      console.log('urls: ', urls);
+      const urls = await getFileUrl({ keys: [fileName] });
 
       newImage = await imageModel.create({
         name: file.originalname,
         image_shopId,
-        url: fileName,
+        url: urls[0].value,
         size: file.size,
         type: file.mimetype,
         belong,

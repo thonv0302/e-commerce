@@ -7,7 +7,11 @@ const {
 } = require('../configs/config.aws');
 const crypto = require('crypto');
 
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
 const s3Client = new S3Client({
@@ -44,7 +48,7 @@ const uploadFile = async ({ body, key, mimetype }) => {
 getFileUrl = async ({ keys }) => {
   const urls = await Promise.allSettled(
     keys.map((key) => {
-      const command = new PutObjectCommand({
+      const command = new GetObjectCommand({
         Bucket: bucket,
         Key: key,
       });
@@ -54,6 +58,19 @@ getFileUrl = async ({ keys }) => {
   );
 
   return urls;
+};
+
+getUrl = async ({ key }) => {
+  const params = {
+    Bucket: bucket,
+    Key: key,
+  };
+  const commandPut = new PutObjectCommand(params);
+
+  const urlPut = await getSignedUrl(s3Client, commandPut);
+  return {
+    uploadURL: urlPut,
+  };
 };
 
 module.exports = {
