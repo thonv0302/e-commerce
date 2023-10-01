@@ -51,6 +51,7 @@ getFileUrl = async ({ keys }) => {
       const command = new GetObjectCommand({
         Bucket: bucket,
         Key: key,
+        Expires: 315360000,
       });
 
       return getSignedUrl(s3Client, command);
