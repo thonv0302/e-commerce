@@ -14,6 +14,17 @@ class ImageController {
     }).send(res);
   };
 
+  createImages = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Create new images success',
+      metadata: await ImageService.createImages({
+        ...req.body,
+        image_shopId: req.user.userId,
+        files: req.files,
+      }),
+    }).send(res);
+  }
+
   getImages = async (req, res, next) => {
     new SuccessResponse({
       message: 'Get images success',

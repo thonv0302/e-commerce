@@ -21,4 +21,6 @@ router.post(
   asyncHandler(imageController.createImage)
 );
 
+router.post("/files", upload.array('photos'), asyncHandler(imageController.createImages))
+
 module.exports = router;

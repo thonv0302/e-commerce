@@ -23,6 +23,22 @@ const s3Client = new S3Client({
   signatureVersion,
 });
 
+getFileUrl = async ({ keys }) => {
+  const urls = await Promise.allSettled(
+    keys.map((key) => {
+      const command = new GetObjectCommand({
+        Bucket: bucket,
+        Key: key,
+        Expires: 315360000,
+      });
+
+      return getSignedUrl(s3Client, command);
+    })
+  );
+
+  return urls;
+};
+
 const generateFileName = (key, bytes = 32) => {
   const ext = key.substring(key.lastIndexOf('.'), key.length);
   return crypto.randomBytes(bytes).toString('hex') + ext;
@@ -40,41 +56,41 @@ const uploadFile = async ({ body, key, mimetype }) => {
   const command = new PutObjectCommand(uploadParams);
   await s3Client.send(command);
 
-  return {
-    fileName,
-  };
+  const urls = await getFileUrl({
+    keys: [fileName]
+  })
+
+  return urls[0].value
 };
 
-getFileUrl = async ({ keys }) => {
-  const urls = await Promise.allSettled(
-    keys.map((key) => {
-      const command = new GetObjectCommand({
-        Bucket: bucket,
-        Key: key,
-        Expires: 315360000,
-      });
+const uploadFiles = async (files) => {
+  const fileNames = []
+  await Promise.allSettled(files.map(file => {
+    const fileName = generateFileName(file.originalname);
+    fileNames.push(fileName);
+    const uploadParams = {
+      Bucket: bucket,
+      Body: file.buffer,
+      Key: fileName,
+      ContentType: file.mimetype,
+    };
 
-      return getSignedUrl(s3Client, command);
-    })
-  );
+    const command = new PutObjectCommand(uploadParams);
 
-  return urls;
-};
+    return s3Client.send(command);
+  }))
 
-getUrl = async ({ key }) => {
-  const params = {
-    Bucket: bucket,
-    Key: key,
-  };
-  const commandPut = new PutObjectCommand(params);
+  const urls = await getFileUrl({
+    keys: fileNames
+  })
 
-  const urlPut = await getSignedUrl(s3Client, commandPut);
-  return {
-    uploadURL: urlPut,
-  };
-};
+  return urls.map(url => url.value)
+}
+
+
 
 module.exports = {
   uploadFile,
+  uploadFiles,
   getFileUrl,
 };

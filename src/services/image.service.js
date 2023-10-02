@@ -1,5 +1,5 @@
 const imageModel = require('../models/image.model');
-const { uploadFile, getFileUrl } = require('../helpers/awsS3');
+const { uploadFile, getFileUrl, uploadFiles } = require('../helpers/awsS3');
 const { BadRequestError } = require('../core/error.response');
 const { queryImage } = require('../models/repositories/image.repo');
 
@@ -7,30 +7,36 @@ class ImageService {
   static async createImage(payload) {
     const { image_shopId, belong, file } = payload;
 
-    let newImage;
     try {
-      const { fileName } = await uploadFile({
+      const url = await uploadFile({
         key: file.originalname,
         body: file.buffer,
         mimetype: file.mimetype,
       });
-
-      const urls = await getFileUrl({ keys: [fileName] });
-
-      newImage = await imageModel.create({
+      const newImage = await imageModel.create({
         name: file.originalname,
         image_shopId,
-        url: urls[0].value,
+        url: url,
         size: file.size,
         type: file.mimetype,
         belong,
       });
+      return newImage;
     } catch (error) {
       //-- delete image s3 bucket
       throw new BadRequestError('Error: there something wrong!');
     }
 
-    return newImage;
+  }
+
+  static async createImages(payload) {
+    const { image_shopId, belong, files } = payload;
+    try {
+      const urls = await uploadFiles(files);
+      console.log('urls: ', urls);
+    } catch (error) {
+
+    }
   }
 
   static async getImages({
@@ -60,10 +66,6 @@ class ImageService {
     }
 
     if (belong === 'shop') {
-      console.log('Vao day: ', {
-        next_cursor,
-        previous_cursor,
-      });
       result1 = await queryImage({
         query: { ...objQueryImages, belong: 'shop' },
         next_cursor,
