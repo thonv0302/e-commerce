@@ -34,6 +34,16 @@ class ImageService {
     try {
       const urls = await uploadFiles(files);
       console.log('urls: ', urls);
+      console.log('files: ', files);
+      const newFiles = files.map((file, idx) => ({
+        name: file.originalname,
+        size: file.size,
+        type: file.mimetype,
+        belong,
+        image_shopId,
+        url: urls[idx]
+      }))
+      console.log('newFiles: ', newFiles);
     } catch (error) {
 
     }
